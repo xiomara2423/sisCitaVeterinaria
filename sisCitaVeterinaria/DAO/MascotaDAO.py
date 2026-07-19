@@ -1,52 +1,86 @@
+import sqlite3
 from Config.logger import Logger
+from Config.base_datos import obtener_conexion
+from Modelos.Mascota import Mascota
+from Config.sistema_config import MascotaNoEncontradaError
 
-class MascotaNoEncontradaError(Exception):
-    def __init__(self, id): super().__init__(f"Mascota ID = {id} no encontrada")
-    
 class MascotaDAO:
     def __init__(self):
-        self.__bd = []
-        self.__mid = 1
         self.__log = Logger()
 
-    def buscar_por_id(self, id):
-        for m in self.__bd:
-            if m.id == id:
-                return m
-        return None
-
-    def buscar_por_dueno(self, dueno_id):
-        return [m for m in self.__bd if m.dueno_id == dueno_id]
-
     def insertar(self, mascota):
-        mascota.id = self.__mid
-        self.__mid += 1
-        self.__bd.append(mascota)
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO mascotas (dueno_id, nombre, especie, raza, sexo, peso) VALUES (?, ?, ?, ?, ?, ?)",
+            (mascota.dueno_id, mascota.nombre, mascota.especie, mascota.raza, mascota.sexo, mascota.peso)
+        ) 
+        # Aplicar cambios
+        conn.commit()
+        mascota.id = cursor.lastrowid
+        conn.close()
         self.__log.info(f"Mascota agregada: {mascota.nombre} (ID = {mascota.id})")
         return mascota
 
+    def buscar_por_id(self, id):
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM mascotas WHERE id = ?", (id,))
+        fila = cursor.fetchone()
+        conn.close()
+        # retorna el registro del metodo __fila_a_mascota a traves de su "id"
+        return self.__fila_a_mascota(fila) if fila else None
+
     def obtener_todos(self):
-        return sorted(self.__bd, key=lambda m: m.nombre)
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM mascotas ORDER BY nombre")
+        filas = cursor.fetchall()
+        conn.close()
+         #retorna los registros del metodo __fila_a_mascota
+        return [self.__fila_a_mascota(f) for f in filas]
+
+    def eliminar(self, id):
+        m = self.buscar_por_id(id)
+        
+        if not m:
+            #lanza un mensaje de error
+            self.__log.error(f"Eliminar fallido: Mascota ID = {id} no existe")
+            raise MascotaNoEncontradaError(id)
+        
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM mascotas WHERE id = ?", (id,))
+        conn.commit()
+        conn.close()
+        self.__log.info(f"Mascota eliminada: {m.nombre} (ID = {id})")
+        return True
+
 
     def actualizar(self, id, nombre=None, raza=None, peso=None):
         m = self.buscar_por_id(id)
         if not m:
-            self.__log.error(f"Actualizar fallido: Mascota ID = {id} no existe")
             raise MascotaNoEncontradaError(id)
-        if nombre: m.nombre = nombre
-        if raza: m.raza = raza
-        if peso is not None: m.peso = peso
-        self.__log.info(f"Mascota actualizada: ID = {id}")
+        
+        nuevo_nombre = nombre if nombre is not None else m.nombre
+        nueva_raza = raza if raza is not None else m.raza
+        nuevo_peso = peso if peso is not None else m.peso
+
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE mascotas SET nombre=?, raza=?, peso=? WHERE id=?",
+            (nuevo_nombre, nueva_raza, nuevo_peso, id)
+        )
+        conn.commit()
+        conn.close()
+        
+        m.nombre = nuevo_nombre
+        m.raza = nueva_raza
+        m.peso = nuevo_peso
         return m
 
-    def eliminar(self, id):
-        m = self.buscar_por_id(id)
-        if not m:
-            self.__log.error(f"Eliminar fallido: Mascota ID = {id} no existe")
-            raise MascotaNoEncontradaError(id)
-        self.__bd.remove(m)
-        self.__log.info(f"Mascota eliminada: ID = {id}")
-        return True
-
-    def total(self):
-        return len(self.__bd)
+    def __fila_a_mascota(self, fila):
+        m = Mascota(fila["dueno_id"], fila["nombre"], fila["especie"], fila["raza"], fila["sexo"], fila["peso"])
+        m.id = fila["id"]
+        return m
