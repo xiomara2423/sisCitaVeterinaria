@@ -2,11 +2,11 @@ import sqlite3
 
 ARCHIVO_BD = "veterinaria.db"
 
-
 def obtener_conexion():
-
     conn = sqlite3.connect(ARCHIVO_BD)
+    #Acceder filas como diccionarios en lugar de tuplas
     conn.row_factory = sqlite3.Row
+    #Aplicar integridad de llaves foraneas
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
@@ -14,6 +14,7 @@ def inicializar():
     conn = obtener_conexion()
     cursor = conn.cursor()
 
+    #Tabla duenos
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS duenos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,11 +22,12 @@ def inicializar():
             apellido TEXT NOT NULL,
             telefono TEXT NOT NULL,
             email TEXT UNIQUE,
-            direccion TEXT,
+            direccion TEXT NOT NULL,
             fecha_registro TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
+    #Tabla mascotas
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS mascotas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,17 +41,19 @@ def inicializar():
         )
     """)
 
+    #Tabla veterinarios
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS veterinarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT NOT NULL,
             apellido TEXT NOT NULL,
-            especialidad TEXT,
+            especialidad TEXT NOT NULL,
             telefono TEXT,
             disponible INTEGER DEFAULT 1
         )
     """)
 
+    #Tabla citas
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS citas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +61,7 @@ def inicializar():
             veterinario_id INTEGER NOT NULL,
             fecha TEXT NOT NULL,
             motivo TEXT NOT NULL,
-            estado TEXT DEFAULT 'Programada'
+            estado TEXT DEFAULT 'Programada' NOT NULL
                 CHECK (estado IN ('Programada', 'Completada', 'Cancelada')),
             FOREIGN KEY (mascota_id) REFERENCES mascotas(id),
             FOREIGN KEY (veterinario_id) REFERENCES veterinarios(id)
