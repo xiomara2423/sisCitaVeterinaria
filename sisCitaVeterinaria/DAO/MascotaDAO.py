@@ -1,8 +1,9 @@
 import sqlite3
 from Config.logger import Logger
 from Config.base_datos import obtener_conexion
+from Config.sistema_config import MascotaNoEncontradaError, MascotaConCitasError
 from Modelos.Mascota import Mascota
-from Config.sistema_config import MascotaNoEncontradaError
+
 
 class MascotaDAO:
     def __init__(self):
@@ -37,21 +38,26 @@ class MascotaDAO:
         cursor.execute("SELECT * FROM mascotas ORDER BY nombre")
         filas = cursor.fetchall()
         conn.close()
-         #retorna los registros del metodo __fila_a_mascota
+        # retorna los registros del metodo __fila_a_mascota
         return [self.__fila_a_mascota(f) for f in filas]
 
     def eliminar(self, id):
         m = self.buscar_por_id(id)
         
         if not m:
-            #lanza un mensaje de error
             self.__log.error(f"Eliminar fallido: Mascota ID = {id} no existe")
             raise MascotaNoEncontradaError(id)
         
         conn = obtener_conexion()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM mascotas WHERE id = ?", (id,))
-        conn.commit()
+        try:
+            cursor.execute("DELETE FROM mascotas WHERE id = ?", (id,))
+            conn.commit()
+        except sqlite3.IntegrityError:
+            conn.close()
+            self.__log.warning(f"Eliminar fallido: Mascota ID = {id} tiene citas asociadas")
+            raise MascotaConCitasError(id)
+            
         conn.close()
         self.__log.info(f"Mascota eliminada: {m.nombre} (ID = {id})")
         return True
