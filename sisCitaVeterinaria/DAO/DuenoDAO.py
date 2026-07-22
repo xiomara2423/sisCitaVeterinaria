@@ -8,6 +8,23 @@ class DuenoDAO:
     def __init__(self):
         self.__log = Logger()
 
+    def insertar(self, dueno):
+        # Verificar que el email no esté duplicado
+        if dueno.email and self.buscar_por_email(dueno.email):
+            self.__log.warning(f"Email duplicado: {dueno.email}")
+            raise EmailDuplicadoError(dueno.email)
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO duenos (nombre, apellido, telefono, email, direccion) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+            (dueno.nombre, dueno.apellido, dueno.telefono, dueno.email, dueno.direccion)
+        )
+        dueno.id = cursor.fetchone()["id"]
+        conn.commit()
+        conn.close()
+        self.__log.info(f"Dueño agregado: {dueno.nombre} {dueno.apellido} (ID = {dueno.id})")
+        return dueno
+
     def buscar_por_email(self, email):
         if not email:
             return None
@@ -25,23 +42,6 @@ class DuenoDAO:
         fila = cursor.fetchone()
         conn.close()
         return self.__fila_a_dueno(fila) if fila else None
-
-    def insertar(self, dueno):
-        # Verificar que el email no esté duplicado
-        if dueno.email and self.buscar_por_email(dueno.email):
-            self.__log.warning(f"Email duplicado: {dueno.email}")
-            raise EmailDuplicadoError(dueno.email)
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute(
-            """INSERT INTO duenos (nombre, apellido, telefono, email, direccion) VALUES (%s, %s, %s, %s, %s) RETURNING id""",
-            (dueno.nombre, dueno.apellido, dueno.telefono, dueno.email, dueno.direccion)
-        )
-        dueno.id = cursor.fetchone()["id"]
-        conn.commit()
-        conn.close()
-        self.__log.info(f"Dueño agregado: {dueno.nombre} {dueno.apellido} (ID = {dueno.id})")
-        return dueno
 
     def obtener_todos(self):
         conn = obtener_conexion()
@@ -69,7 +69,7 @@ class DuenoDAO:
         conn = obtener_conexion()
         cursor = conn.cursor()
         cursor.execute(
-            """UPDATE duenos SET nombre=%s, apellido=%s, telefono=%s, email=%s, direccion=%s WHERE id=%s""",
+            "UPDATE duenos SET nombre=%s, apellido=%s, telefono=%s, email=%s, direccion=%s WHERE id=%s",
             (nuevo_nombre, nuevo_apellido, nuevo_telefono, nuevo_email, nueva_direccion, id)
         )
         conn.commit()
@@ -100,7 +100,7 @@ class DuenoDAO:
         conn.close()
         self.__log.info(f"Dueño eliminado: {d.nombre} {d.apellido} (ID = {id})")
         return True
-# metodo contador de registros
+    # Contador de registros
     def total(self):
         conn = obtener_conexion()
         cursor = conn.cursor()
