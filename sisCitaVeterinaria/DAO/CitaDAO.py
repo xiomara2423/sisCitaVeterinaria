@@ -1,4 +1,3 @@
-import psycopg2
 from Config.logger import Logger
 from Config.base_datos import obtener_conexion
 from Modelos.Cita import Cita
@@ -7,14 +6,6 @@ from Config.sistema_config import CitaNoEncontradaError, EstadoInvalidoError
 class CitaDAO:
     def __init__(self):
         self.__log = Logger()
-            
-    def buscar_por_id(self, id):
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM citas WHERE id = %s", (id,))
-        fila = cursor.fetchone()
-        conn.close()
-        return self.__fila_a_cita(fila) if fila else None
     
     def insertar(self, cita):
         conn = obtener_conexion()
@@ -26,8 +17,17 @@ class CitaDAO:
         cita.id = cursor.fetchone()["id"]
         conn.commit()
         conn.close()
+        self.__log.info(f"Cita agregada: ID = {cita.id}")
         return cita
-
+       
+    def buscar_por_id(self, id):
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM citas WHERE id = %s", (id,))
+        fila = cursor.fetchone()
+        conn.close()
+        return self.__fila_a_cita(fila) if fila else None
+    
     def obtener_todas(self):
         conn = obtener_conexion()
         cursor = conn.cursor()
@@ -37,17 +37,13 @@ class CitaDAO:
         return [self.__fila_a_cita(f) for f in filas]
     
     def actualizar(self, id, motivo=None, estado=None):
-        
         c = self.buscar_por_id(id)
         if not c:
             raise CitaNoEncontradaError(id)
-        
         if estado is not None and estado not in Cita.E_Validos:
             raise EstadoInvalidoError(estado)
-
         nuevo_motivo = motivo if motivo is not None else c.motivo
         nuevo_estado = estado if estado is not None else c.estado
-
         conn = obtener_conexion()
         cursor = conn.cursor()
         cursor.execute(
@@ -58,18 +54,19 @@ class CitaDAO:
         conn.close()
         c.motivo = nuevo_motivo
         c.estado = nuevo_estado
+        self.__log.info(f"Cita actualizada: ID = {id}")
         return c
     
     def eliminar(self, id):
         c = self.buscar_por_id(id)
         if not c:
             raise CitaNoEncontradaError(id)
-        
         conn = obtener_conexion()
         cursor = conn.cursor()
         cursor.execute("DELETE FROM citas WHERE id = %s", (id,))
         conn.commit()
         conn.close()
+        self.__log.info(f"Cita eliminada: ID = {id}")
         return True
 
     def total(self):
