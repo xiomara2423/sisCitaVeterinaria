@@ -2,8 +2,6 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-ARCHIVO_BD = "veterinaria.db"
-
 def obtener_conexion():
     
     #CREDENCIALES 
@@ -14,9 +12,9 @@ def obtener_conexion():
         user=os.getenv("BD_USER", "postgres"),
         password=os.getenv("BD_PASSWORD", "123456")
     )
-    
     conn.cursor_factory=RealDictCursor
-    return conn 
+    return conn
+
 def inicializar():
     # Crea las tablas si aún no existen en PostgreSQL
     conn = obtener_conexion()
@@ -30,8 +28,7 @@ def inicializar():
             apellido        TEXT            NOT NULL,
             telefono        TEXT            NOT NULL,
             email           TEXT            UNIQUE,
-            direccion       TEXT            NOT NULL,
-            fecha_registro  TEXT            DEFAULT TO_CHAR(CURRENT_TIMESTAMP, 'DD-MM-YYYY HH24:MI:SS')
+            direccion       TEXT            NOT NULL
         )
     """)
 
@@ -57,7 +54,7 @@ def inicializar():
             apellido        TEXT        NOT NULL,
             especialidad    TEXT        NOT NULL,
             telefono        TEXT,
-            disponible      INTEGER     DEFAULT 1
+            disponible      BOOLEAN     DEFAULT TRUE
         )
     """)
 
