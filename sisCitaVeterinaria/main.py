@@ -4,9 +4,7 @@ from DAO.DuenoDAO import DuenoDAO
 from DAO.MascotaDAO import MascotaDAO
 from DAO.VeterinarioDAO import VeterinarioDAO
 from DAO.CitaDAO import CitaDAO
-from Config.persistencia import (
-    guardar_duenos, guardar_mascotas, guardar_veterinarios, guardar_citas,
-    cargar_duenos, cargar_mascotas, cargar_veterinarios, cargar_citas)
+
  
 from Vistas.menu import (
                         cargar_datos_ejemplo,
@@ -63,23 +61,12 @@ def main():
             case "18": ver_mascotas_json(mascota_dao)
             case "19": ver_veterinarios_json(vet_dao)
             case "20": ver_citas_json(cita_dao)
-            case "21":
-                guardar_duenos(dueno_dao)
-                guardar_mascotas(mascota_dao)
-                guardar_veterinarios(vet_dao)
-                guardar_citas(cita_dao)
+           
             #=========================================================
-            case "22": Logger().mostrar_logs()
-            case "23": Logger().limpiar()
+            case "21": Logger().mostrar_logs()
+            case "22": Logger().limpiar()
             case "0":
-                #=====================================================
-                #EN CASO DE CERRAR (OPCIÓN 0), SE GUARDA LO REGISTRADO
-                #=====================================================
-                guardar_duenos(dueno_dao)
-                guardar_mascotas(mascota_dao)
-                guardar_veterinarios(vet_dao)
-                guardar_citas(cita_dao)
-                #=====================================================
+                
                 Logger().info("Sistema cerrado por el usuario")
                 print("\n Hasta luego")
                 break

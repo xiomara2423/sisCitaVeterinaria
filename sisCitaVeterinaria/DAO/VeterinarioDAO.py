@@ -84,7 +84,7 @@ class VeterinarioDAO:
     def total(self):
         conn = obtener_conexion()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM veterinarios")
+        cursor.execute("SELECT COUNT(*) AS TOTAL FROM veterinarios")
         total = cursor.fetchone()["total"]
         conn.close()
         return total
