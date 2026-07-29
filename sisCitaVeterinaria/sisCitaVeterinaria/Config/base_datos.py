@@ -10,7 +10,7 @@ def obtener_conexion():
         port=os.getenv("BD_PORT", "5432"),
         database=os.getenv("BD_NAME", "sistema_db"),
         user=os.getenv("BD_USER", "postgres"),
-        password=os.getenv("BD_PASSWORD", "123456")
+        password=os.getenv("BD_PASSWORD", "")
     )
     conn.cursor_factory=RealDictCursor
     return conn
@@ -27,7 +27,7 @@ def inicializar():
             nombre          TEXT            NOT NULL,
             apellido        TEXT            NOT NULL,
             telefono        TEXT            NOT NULL,
-            email           TEXT            UNIQUE,
+            email           TEXT            UNIQUE NOT NULL,
             direccion       TEXT            NOT NULL
         )
     """)
@@ -41,7 +41,7 @@ def inicializar():
             especie     TEXT        NOT NULL,
             raza        TEXT,
             sexo        TEXT        CHECK (sexo IN ('M', 'H')),
-            peso        REAL,
+            peso        NUMERIC (5,2),
             FOREIGN KEY (dueno_id) REFERENCES duenos(id)
         )
     """)
@@ -53,7 +53,7 @@ def inicializar():
             nombre          TEXT        NOT NULL,
             apellido        TEXT        NOT NULL,
             especialidad    TEXT        NOT NULL,
-            telefono        TEXT,
+            telefono        TEXT        NOT NULL,
             disponible      BOOLEAN     DEFAULT TRUE
         )
     """)
