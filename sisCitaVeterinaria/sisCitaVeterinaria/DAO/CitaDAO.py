@@ -28,7 +28,7 @@ class CitaDAO:
         conn.close()
         return self.__fila_a_cita(fila) if fila else None
     
-    def obtener_todas(self):
+    def obtener_todos(self):
         conn = obtener_conexion()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM citas ORDER BY fecha DESC")
