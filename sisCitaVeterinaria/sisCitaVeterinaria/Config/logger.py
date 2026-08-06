@@ -26,6 +26,9 @@ class Logger:
         for log in self._logs:
             print(f"  [{log['hora']}] {log['nivel']:7} | {log['msg']}")
 
+    def obtener_logs(self):
+        return self._logs
+
     def limpiar(self):
         self._logs.clear()
         print("  [Logger] Logs limpiados")
