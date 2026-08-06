@@ -63,7 +63,7 @@ class DuenoDAO:
         nuevo_nombre = nombre if nombre is not None else d.nombre
         nuevo_apellido = apellido if apellido is not None else d.apellido
         nuevo_telefono = telefono if telefono is not None else d.telefono
-        nuevo_email = email if email is not None else d.email
+        nuevo_email = email.strip().lower() if email is not None else d.email
         nueva_direccion = direccion if direccion is not None else d.direccion
 
         conn = obtener_conexion()
@@ -100,15 +100,7 @@ class DuenoDAO:
         conn.close()
         self.__log.info(f"Dueño eliminado: {d.nombre} {d.apellido} (ID = {id})")
         return True
-    # Contador de registros
-    def total(self):
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) AS total FROM duenos")
-        total = cursor.fetchone()["total"]
-        conn.close()
-        return total
- 
+
     def __fila_a_dueno(self, fila):
         d = Dueno(fila["nombre"], fila["apellido"], fila["telefono"], fila["email"], fila["direccion"])
         d.id = fila["id"]
