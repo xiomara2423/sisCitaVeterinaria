@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from Config.base_datos import inicializar
-from routers import Citas, Duenos, Mascotas, Veterinarios
+from routers import Citas, Duenos, Mascotas, Veterinarios, Sistema
+from Config.sistema_config import SistemaConfig
 
 app = FastAPI(
     title="Sistema de Citas Veterinaria RX",
@@ -17,11 +18,13 @@ app.add_middleware(
 )
 
 inicializar()
+sc = SistemaConfig()
 
 app.include_router(Citas.router)
 app.include_router(Duenos.router)
 app.include_router(Mascotas.router)
 app.include_router(Veterinarios.router)
+app.include_router(Sistema.router)
 
 @app.get("/")
 def inicio():
