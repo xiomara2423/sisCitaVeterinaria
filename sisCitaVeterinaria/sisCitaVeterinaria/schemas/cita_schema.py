@@ -17,7 +17,6 @@ class CitaCrear(BaseModel):
         return valor
 
 class CitaActualizar(BaseModel):
-    motivo: Optional[str] = None
     estado: Optional[str] = None
 
     @field_validator("estado")
