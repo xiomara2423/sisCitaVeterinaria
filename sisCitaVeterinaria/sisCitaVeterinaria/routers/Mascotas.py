@@ -25,7 +25,7 @@ def crear_mascota(datos: MascotaCrear):
 @router.put("/{mascota_id}", response_model=MascotaRespuesta)
 def actualizar_mascota(mascota_id: int, datos: MascotaActualizar):
     try:
-        m = dao.actualizar(mascota_id, datos.nombre, datos.especie, datos.raza, datos.sexo, datos.peso)
+        m = dao.actualizar(mascota_id, datos.nombre, datos.raza, datos.peso)
         return m.to_dict()
     except MascotaNoEncontradaError as ex:
         raise HTTPException(status_code=404, detail=str(ex))
