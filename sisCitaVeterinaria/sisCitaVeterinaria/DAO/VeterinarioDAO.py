@@ -81,14 +81,6 @@ class VeterinarioDAO:
         self.__log.info(f"Veterinario eliminado: ID = {id}")
         return True
 
-    def total(self):
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) AS TOTAL FROM veterinarios")
-        total = cursor.fetchone()["total"]
-        conn.close()
-        return total
-
     def __fila_a_veterinario(self, fila):
         v = Veterinario(fila["nombre"], fila["apellido"], fila["especialidad"], fila["telefono"], fila["disponible"])
         v.id = fila["id"]
