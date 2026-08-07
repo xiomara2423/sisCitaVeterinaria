@@ -40,6 +40,7 @@ class MascotaDAO:
     def actualizar(self, id, nombre=None, raza=None, peso=None):
         m = self.buscar_por_id(id)
         if not m:
+            self.__log.error(f"Actualizar fallido: Mascota ID = {id} no existe")
             raise MascotaNoEncontradaError(id)
         nuevo_nombre = nombre if nombre is not None else m.nombre
         nueva_raza = raza if raza is not None else m.raza
@@ -75,15 +76,7 @@ class MascotaDAO:
         conn.close()
         self.__log.info(f"Mascota eliminada: {m.nombre} (ID = {id})")
         return True
-    
-    def total(self):
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) AS total FROM mascotas")
-        total = cursor.fetchone()["total"]
-        conn.close()
-        return total
-    
+
     def __fila_a_mascota(self, fila):
         m = Mascota(fila["dueno_id"], fila["nombre"], fila["especie"], fila["raza"], fila["sexo"], fila["peso"])
         m.id = fila["id"]
