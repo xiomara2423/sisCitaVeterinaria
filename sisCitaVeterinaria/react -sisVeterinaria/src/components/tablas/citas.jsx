@@ -153,7 +153,8 @@ function TabCitas({ citas = [], mascotas = [], veterinarios = [], onCrear, onAct
                     >
                       ⏱ {c.estado}
                     </span>
-                    <button className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-3 py-1">
+                    <button className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-3 py-1"
+                            onClick={() => onEliminar(c.id)}>
                       🗑 Eliminar
                     </button>
                   </div>
