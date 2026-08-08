@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from Config.base_datos import inicializar
-from routers import Citas, Duenos, Mascotas, Veterinarios, Sistema
+from routers import Citas, Duenos, Mascotas, Veterinarios, Sistemas
 from Config.sistema_config import SistemaConfig
 
 app = FastAPI(
@@ -24,7 +24,7 @@ app.include_router(Citas.router)
 app.include_router(Duenos.router)
 app.include_router(Mascotas.router)
 app.include_router(Veterinarios.router)
-app.include_router(Sistema.router)
+app.include_router(Sistemas.router)
 
 @app.get("/")
 def inicio():
