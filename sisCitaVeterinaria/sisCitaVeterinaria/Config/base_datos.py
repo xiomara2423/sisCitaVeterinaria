@@ -1,15 +1,17 @@
 import os 
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
 
+load_dotenv()
 def obtener_conexion():
     
     #CREDENCIALES 
     conn = psycopg2.connect(
-        host=os.getenv("BD_HOST", "localhost"),
-        port=os.getenv("BD_PORT", "5432"),
-        database=os.getenv("BD_NAME", "sistema_db"),
-        user=os.getenv("BD_USER", "postgres"),
+        host=os.getenv("BD_HOST", ""),
+        port=os.getenv("BD_PORT", ""),
+        database=os.getenv("BD_NAME", ""),
+        user=os.getenv("BD_USER", ""),
         password=os.getenv("BD_PASSWORD", "")
     )
     conn.cursor_factory=RealDictCursor
