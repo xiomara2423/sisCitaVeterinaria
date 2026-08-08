@@ -28,7 +28,7 @@ def crear_cita(datos: CitaCrear):
 @router.put("/{cita_id}", response_model=CitaRespuesta)
 def actualizar_cita(cita_id: int, datos: CitaActualizar):
     try:
-        c = dao.actualizar(cita_id, datos.motivo, datos.estado)
+        c = dao.actualizar(cita_id, datos.estado)
         return c.to_dict()
     except CitaNoEncontradaError as ex:
         raise HTTPException(status_code=404, detail=str(ex))
